@@ -1,0 +1,6 @@
+{
+  "name": "AutoMarket",
+  "description": "Production-grade European automotive marketplace to browse, filter, compare, test drive, finance, and trade in vehicles, featuring comprehensive customer and dealership administrative dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
