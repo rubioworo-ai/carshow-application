@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+*terraform-aks/.terraform/providers/*
+*terraform-aks/.terraform/*
+*terraform-aks/.terraform.*
+*terraform-aks/.terraform/provider/*
+*-ask/.terraform/terraform.tfstate
+
