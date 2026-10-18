@@ -23,3 +23,13 @@ output "kube_config" {
 output "storage_account_name" {
   value = azurerm_storage_account.state_sa.name
 }
+
+output "acr_login_server" {
+  description = "The URL login server of the Azure Container Registry."
+  value       = azurerm_container_registry.acr.login_server
+}
+
+output "acr_name" {
+  description = "The name of the Azure Container Registry."
+  value       = azurerm_container_registry.acr.name
+}
