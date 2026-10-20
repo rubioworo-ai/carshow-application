@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: my-app
+  namespace: nimbus-dev
   labels:
     app: my-app
 spec:
@@ -16,7 +17,7 @@ spec:
     spec:
       containers:
         - name: nimbus-carweb-app
-          image: nimbus-carweb-app:v1.0.0
+          image: rukevweubio/nimbus-carweb-app:v1.1 
           ports:
             - name: http
               containerPort: 3000
