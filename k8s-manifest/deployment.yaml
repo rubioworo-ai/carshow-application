@@ -17,9 +17,8 @@ spec:
     spec:
       containers:
         - name: nimbus-carweb-app
-          image: rukevweubio/nimbus-carweb-app:v1.1 
+          image:  ubiowororuki/bitcoin-app:latest
           ports:
             - name: http
-              containerPort: 3000
+              containerPort: 80
               protocol: TCP
-          
