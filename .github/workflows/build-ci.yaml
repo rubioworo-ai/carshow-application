@@ -1,4 +1,4 @@
-name: Devsecops pipeline  for carwebapplication
+name: DevSecOps Pipeline for Car Web Application
 
 on:
   push:
@@ -8,6 +8,9 @@ on:
       - ".github/workflows/build-ci.yaml"
       - "Dockerfile"
       - "src/**"
+      - "terraform-aks/**"
+      - "k8s-manifest/**"
+
 permissions:
   contents: read
   security-events: write
@@ -38,6 +41,92 @@ jobs:
         with:
           sarif_file: gitleaks.sarif
 
-      
+  checkov-terraform:
+    name: Terraform Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Reports Directory
+        run: mkdir -p reports
 
-      
+      - name: Run Terraform Checkov Scan
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/repo \
+            bridgecrew/checkov:latest \
+            --directory /repo/terraform-aks \
+            --framework terraform \
+            --output sarif \
+            > reports/terraform-checkov.sarif
+
+      - name: Upload SARIF Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/terraform-checkov.sarif
+
+      - name: Upload Terraform Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-checkov-report
+          path: reports/terraform-checkov.sarif
+
+  checkov-dockerfile:
+    name: Dockerfile Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Reports Directory
+        run: mkdir -p reports
+
+      - name: Run Dockerfile Checkov Scan
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/repo \
+            bridgecrew/checkov:latest \
+            --directory /repo \
+            --framework dockerfile \
+            --output sarif \
+            > reports/docker-checkov.sarif
+
+      - name: Upload SARIF Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/docker-checkov.sarif
+
+      - name: Upload Docker Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-checkov-report
+          path: reports/docker-checkov.sarif
+
+  checkov-kubernetes:
+    name: Kubernetes Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Reports Directory
+        run: mkdir -p reports
+
+      - name: Run Kubernetes Checkov Scan
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/repo \
+            bridgecrew/checkov:latest \
+            --directory /repo/k8s-manifest \
+            --framework kubernetes \
+            --output sarif \
+            > reports/kubernetes-checkov.sarif
+
+      - name: Upload SARIF Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/kubernetes-checkov.sarif
+
+      - name: Upload Kubernetes Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: kubernetes-checkov-report
+          path: reports/kubernetes-checkov.sarif
