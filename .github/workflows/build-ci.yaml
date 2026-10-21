@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - main
-  paths:
+    paths:
       - ".github/workflows/build-ci.yaml"
       - "Dockerfile"
-      - "src/*"
+      - "src/**"
 permissions:
   contents: read
   security-events: write
