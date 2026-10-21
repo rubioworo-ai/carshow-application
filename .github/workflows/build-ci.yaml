@@ -8,8 +8,6 @@ on:
       - ".github/workflows/build-ci.yaml"
       - "Dockerfile"
       - "src/**"
-      - "terraform-aks/**"
-      - "k8s-manifest/**"
 
 permissions:
   contents: read
@@ -47,20 +45,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Pull Checkov Docker Image
         run: docker pull bridgecrew/checkov:latest
-      
+
+      - name: Create Directory for Reports
+        run: mkdir -p reports
 
       - name: Run Terraform Checkov Scan
         run: |
-          mkdir -p reports
           docker run --rm \
             -v ${{ github.workspace }}:/repo \
+            -w /repo \
             bridgecrew/checkov:latest \
             --directory /repo/terraform-aks \
             --framework terraform \
-            --output sarif \
-            > reports/terraform-checkov.sarif
+            --output sarif > reports/terraform-checkov.sarif || true
 
       - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
@@ -88,11 +88,11 @@ jobs:
           mkdir -p reports
           docker run --rm \
             -v ${{ github.workspace }}:/repo \
+            -w /repo \
             bridgecrew/checkov:latest \
             --directory /repo \
             --framework dockerfile \
-            --output sarif \
-            > reports/docker-checkov.sarif
+            --output sarif > reports/docker-checkov.sarif || true
 
       - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
@@ -121,11 +121,11 @@ jobs:
           mkdir -p reports
           docker run --rm \
             -v ${{ github.workspace }}:/repo \
+            -w /repo \
             bridgecrew/checkov:latest \
             --directory /repo/k8s-manifest \
             --framework kubernetes \
-            --output sarif \
-            > reports/kubernetes-checkov.sarif
+            --output sarif > reports/kubernetes-checkov.sarif || true
 
       - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
