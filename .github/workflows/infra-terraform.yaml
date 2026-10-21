@@ -7,8 +7,6 @@ on:
     paths:
       - "terraform-aks/**"
       - ".github/workflows/infra-terraform.yaml"
-    paths:
-      - "terraform-aks/**"
 
 permissions:
   contents: read
