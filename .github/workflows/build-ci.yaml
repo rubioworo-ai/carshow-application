@@ -61,19 +61,20 @@ jobs:
             bridgecrew/checkov:latest \
             --directory /repo/terraform-aks \
             --framework terraform \
-            --output sarif 
-            --output-file-path > reports/terraform-checkov.sarif || true
+            --output sarif \
+            --output-file-path reports \
+            --soft-fail
 
       - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: reports/terraform-checkov.sarif
+          sarif_file: reports/results_sarif.sarif
 
       - name: Upload Terraform Report
         uses: actions/upload-artifact@v4
         with:
           name: terraform-checkov-report
-          path: reports/terraform-checkov.sarif
+          path: reports/results_sarif.sarif
 
   checkov-dockerfile:
     name: Dockerfile Security Scan
@@ -95,19 +96,20 @@ jobs:
             bridgecrew/checkov:latest \
             --directory /repo \
             --framework dockerfile \
-            --output sarif
-            --output-file-path  > reports/docker-checkov.sarif || true
+            --output sarif \
+            --output-file-path reports \
+            --soft-fail
 
       - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: reports/docker-checkov.sarif
+          sarif_file: reports/results_sarif.sarif
 
       - name: Upload Docker Report
         uses: actions/upload-artifact@v4
         with:
           name: docker-checkov-report
-          path: reports/docker-checkov.sarif
+          path: reports/results_sarif.sarif
 
   checkov-kubernetes:
     name: Kubernetes Security Scan
@@ -130,16 +132,17 @@ jobs:
             bridgecrew/checkov:latest \
             --directory /repo/k8s-manifest \
             --framework kubernetes \
-            --output sarif 
-            --output-file-path> reports/kubernetes-checkov.sarif || true
+            --output sarif \
+            --output-file-path reports \
+            --soft-fail
 
       - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: reports/kubernetes-checkov.sarif
+          sarif_file: reports/results_sarif.sarif
 
       - name: Upload Kubernetes Report
         uses: actions/upload-artifact@v4
         with:
           name: kubernetes-checkov-report
-          path: reports/kubernetes-checkov.sarif
+          path: reports/results_sarif.sarif
