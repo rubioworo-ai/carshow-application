@@ -43,6 +43,7 @@ jobs:
 
   checkov-terraform:
     name: Terraform Security Scan
+    needs: gitleaks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -72,6 +73,7 @@ jobs:
 
   checkov-dockerfile:
     name: Dockerfile Security Scan
+    needs: gitleaks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -102,6 +104,7 @@ jobs:
 
   checkov-kubernetes:
     name: Kubernetes Security Scan
+    needs: gitleaks
     runs-on: ubuntu-latest
 
     steps:
