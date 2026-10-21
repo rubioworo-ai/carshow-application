@@ -40,6 +40,7 @@ jobs:
 
   code-lint-and-test:
     name: Code Linting & Unit Tests
+    needs: checkov-kubernetes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -62,6 +63,7 @@ jobs:
 
   sast-and-trivy-fs:
     name: Code SAST & Filesystem Security Scan
+    needs: code-lint-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -73,7 +75,7 @@ jobs:
           config: p/javascript
 
       - name: Run Trivy Filesystem Scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           scan-ref: '.'
