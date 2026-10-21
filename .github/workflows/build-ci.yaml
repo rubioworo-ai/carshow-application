@@ -17,7 +17,6 @@ jobs:
   gitleaks:
     name: Secret Scanning
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -34,10 +33,52 @@ jobs:
             --report-format sarif \
             --report-path /repo/gitleaks.sarif
 
-      - name: Upload Results
+      - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: gitleaks.sarif
+
+  code-lint-and-test:
+    name: Code Linting & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run ESLint
+        run: npm run lint --if-present
+
+      - name: Run Unit Tests
+        run: npm test -- --passWithNoTests
+
+  sast-and-trivy-fs:
+    name: Code SAST & Filesystem Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep SAST
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: p/javascript
+
+      - name: Run Trivy Filesystem Scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'HIGH,CRITICAL'
+          exit-code: 0
 
   checkov-terraform:
     name: Terraform Security Scan
@@ -116,7 +157,6 @@ jobs:
     needs: gitleaks
     continue-on-error: true
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -146,44 +186,5 @@ jobs:
         with:
           name: kubernetes-checkov-report
           path: reports/results_sarif.sarif
-  code-lint-and-test:
-    name: Code Linting & Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Run ESLint
-        run: npm run lint --if-present
-
-      - name: Run Unit Tests
-        run: npm test -- --passWithNoTests
-
-  sast-and-trivy-fs:
-    name: Code SAST & Filesystem Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Run Semgrep SAST
-        uses: semgrep/semgrep-action@v1
-        with:
-          config: p/javascript
-
-      - name: Run Trivy Filesystem Scan
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          severity: 'HIGH,CRITICAL'
-          exit-code: 0
+  
