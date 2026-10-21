@@ -1,4 +1,4 @@
-name: Devsecops pipeline 
+name: Devsecops pipeline  for carwebapplication
 
 on:
   push:
