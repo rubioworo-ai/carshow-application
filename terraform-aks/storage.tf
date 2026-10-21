@@ -16,7 +16,7 @@ resource "azurerm_storage_account" "state_sa" {
 }
 
 resource "azurerm_storage_container" "state_container" {
-  name                  = "tfstate"
+  name                  = "nimbuskeyubio123"
   storage_account_name  = azurerm_storage_account.state_sa.name
   container_access_type = "private"
 

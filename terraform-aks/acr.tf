@@ -4,7 +4,7 @@ resource "azurerm_container_registry" "acr" {
   location            = local.location
 
   sku           = "Basic"
-  admin_enabled = false
+  admin_enabled = true
 
   tags = {
     Environment = "Lab"

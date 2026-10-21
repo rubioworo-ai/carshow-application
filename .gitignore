@@ -11,4 +11,5 @@ coverage/
 *terraform-aks/.terraform.*
 *terraform-aks/.terraform/provider/*
 *-ask/.terraform/terraform.tfstate
+terraform-aks/.terraform/terraform.tfstate
 
