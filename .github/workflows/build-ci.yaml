@@ -47,11 +47,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create Reports Directory
-        run: mkdir -p reports
+      - name: Pull Checkov Docker Image
+        run: docker pull bridgecrew/checkov:latest
+      
 
       - name: Run Terraform Checkov Scan
         run: |
+          mkdir -p reports
           docker run --rm \
             -v ${{ github.workspace }}:/repo \
             bridgecrew/checkov:latest \
@@ -78,11 +80,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create Reports Directory
-        run: mkdir -p reports
+      - name: Pull Checkov Docker Image
+        run: docker pull bridgecrew/checkov:latest
 
       - name: Run Dockerfile Checkov Scan
         run: |
+          mkdir -p reports
           docker run --rm \
             -v ${{ github.workspace }}:/repo \
             bridgecrew/checkov:latest \
@@ -110,11 +113,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create Reports Directory
-        run: mkdir -p reports
+      - name: Pull Checkov Docker Image
+        run: docker pull bridgecrew/checkov:latest
 
       - name: Run Kubernetes Checkov Scan
         run: |
+          mkdir -p reports
           docker run --rm \
             -v ${{ github.workspace }}:/repo \
             bridgecrew/checkov:latest \
