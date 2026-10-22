@@ -4,5 +4,6 @@ terraform {
     storage_account_name = "tfst4aadea6c"
     container_name       = "nimbuskeyubio123"
     key                  = "aks-cluster.tfstate"
+    use_oidc             = true
   }
 }

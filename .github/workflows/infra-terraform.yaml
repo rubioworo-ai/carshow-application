@@ -49,14 +49,22 @@ jobs:
       run:
         working-directory: ./terraform-aks
 
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: "true"
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Azure CLI Login
+      - name: Azure CLI Login via OIDC
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Setup Terraform CLI
         uses: hashicorp/setup-terraform@v3
@@ -64,7 +72,13 @@ jobs:
           terraform_version: 1.9.0
 
       - name: Terraform Init
-        run: terraform init --upgrade
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=kml_rg_main-3b87bfae25b043ba" \
+            -backend-config="storage_account_name=tfst4aadea6c" \
+            -backend-config="container_name=nimbuskeyubio123" \
+            -backend-config="key=aks-cluster.tfstate" \
+            -backend-config="use_oidc=true"
 
       - name: Terraform Validate
         run: terraform validate
@@ -72,8 +86,22 @@ jobs:
       - name: Terraform Format Check
         run: terraform fmt -check
 
+      - name: Conditional One-Time State Import
+        run: |
+          if ! terraform state list | grep -q "azurerm_storage_account.state_sa"; then
+            echo "Importing storage account into remote state..."
+            terraform import azurerm_storage_account.state_sa \
+              "/subscriptions/a2b28c85-1948-4263-90ca-bade2bac4df4/resourceGroups/kml_rg_main-3b87bfae25b043ba/providers/Microsoft.Storage/storageAccounts/tfst4aadea6c"
+          fi
+
+          if ! terraform state list | grep -q "azurerm_storage_container.state_container"; then
+            echo "Importing storage container into remote state..."
+            terraform import azurerm_storage_container.state_container \
+              "https://tfst4aadea6c.blob.core.windows.net/nimbuskeyubio123"
+          fi
+
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -out=tfplan -input=false
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
