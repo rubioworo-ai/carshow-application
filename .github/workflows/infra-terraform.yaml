@@ -1,4 +1,4 @@
-name: Infrastructure Provisioning Pipeline(Terraform)
+name: Infrastructure Provisioning Pipeline (Terraform)
 
 on:
   push:
@@ -10,7 +10,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
   security-events: write
 
 jobs:
@@ -51,20 +50,18 @@ jobs:
 
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_USE_OIDC: "true"
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Azure CLI Login via OIDC
+      - name: Azure CLI Login via Credentials
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          creds: ${{ secrets.AZURE_CREDENTIAL}}
 
       - name: Setup Terraform CLI
         uses: hashicorp/setup-terraform@v3
@@ -77,8 +74,7 @@ jobs:
             -backend-config="resource_group_name=kml_rg_main-3b87bfae25b043ba" \
             -backend-config="storage_account_name=tfst4aadea6c" \
             -backend-config="container_name=nimbuskeyubio123" \
-            -backend-config="key=aks-cluster.tfstate" \
-            -backend-config="use_oidc=true"
+            -backend-config="key=aks-cluster.tfstate"
 
       - name: Terraform Validate
         run: terraform validate
