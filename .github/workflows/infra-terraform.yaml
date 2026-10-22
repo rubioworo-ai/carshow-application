@@ -9,8 +9,9 @@ on:
       - ".github/workflows/infra-terraform.yaml"
 
 permissions:
-  contents: read
   security-events: write
+  id-token: write
+  contents: read
 
 jobs:
   checkov-terraform:
