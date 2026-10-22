@@ -77,11 +77,8 @@ jobs:
 
       - name: Terraform Init
         run: |
-          terraform init -reconfigure  \
-            -backend-config="resource_group_name=kml_rg_main-3b87bfae25b043ba" \
-            -backend-config="storage_account_name=tfst4aadea6c" \
-            -backend-config="container_name=nimbuskeyubio123" \
-            -backend-config="key=aks-cluster.tfstate"
+          terraform init --reconfigure 
+            
 
       - name: Terraform Validate
         run: terraform validate
