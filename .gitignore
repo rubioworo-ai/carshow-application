@@ -14,4 +14,5 @@ coverage/
 *-ask/.terraform/terraform.tfstate
 terraform-aks/.terraform/terraform.tfstate
 .scannerwork/*
+*azure-credentials.json
 
