@@ -250,6 +250,13 @@ jobs:
         run: |
           syft dir:. -o spdx-json > sbom.json
 
+
+      - name: Push Container Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:latest
+
       - name: Install Cosign CLI
         uses: sigstore/cosign-installer@v4.1.0
 
@@ -259,11 +266,7 @@ jobs:
         run: |
           cosign sign --yes ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
 
-      - name: Push Container Image to Docker Hub
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
-          docker tag ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:latest
+      
 
 
 
