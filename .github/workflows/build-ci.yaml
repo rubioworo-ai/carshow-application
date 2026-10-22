@@ -251,14 +251,22 @@ jobs:
           syft dir:. -o spdx-json > sbom.json
 
 
+      - name: Upload SBOM Artifact to GitHub UI
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-spdx-json
+          path: sbom.json
+
+
       - name: Push Container Image to Docker Hub
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
           docker tag ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:latest
+          
 
       - name: Install Cosign CLI
-        uses: sigstore/cosign-installer@v4.1.0
+        uses: sigstore/cosign-installer@v3.7.0
 
       - name: Sign Container Image Keylessly (Cosign OIDC)
         env:
@@ -266,8 +274,30 @@ jobs:
         run: |
           cosign sign --yes ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
 
-      
+      - name: Attach Signed SBOM Attestation to Registry Image
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign attest --yes \
+            --predicate sbom.json \
+            --type spdxjson \
+            ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
 
+      - name: Verify and Save Cosign Signature Payload
+        run: |
+          cosign verify \
+            --certificate-identity-regexp "https://github.com/.*" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }} > cosign-verification.json
+
+      - name: Upload SBOM & Cosign Verification Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-attestations
+          path: |
+            sbom.json
+            cosign-verification.json
+          retention-days: 14
 
 
 
