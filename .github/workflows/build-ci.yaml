@@ -192,6 +192,7 @@ jobs:
   sonarqube:
     name: SonarQube SAST Scan
     runs-on: ubuntu-latest
+    needs: [code-lint-and-test, sast-and-trivy-fs]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
