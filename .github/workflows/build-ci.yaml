@@ -214,31 +214,33 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   build-and-push-dockerhub:
-    name: Build, Scan & Push to Docker Hub
+    name: Build, Scan & Push to Azure Container Registry (ACR)
     runs-on: ubuntu-latest
     needs: sonarqube  
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+      - name: Azure Login
+        uses: azure/login@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to Azure Container Registry (ACR)
+        run: az acr login --name nimbusacrj9tt6o
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker Image Locally
         run: |
-          IMAGE_TAG="${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}"
+          IMAGE_TAG="nimbusacrj9tt6o.azurecr.io/carshowroom-app:${{ github.sha }}"
           docker build --no-cache -t $IMAGE_TAG .
 
       - name: Run Trivy Image Vulnerability Scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}'
+          image-ref: 'nimbusacrj9tt6o.azurecr.io/carshowroom-app:${{ github.sha }}'
           scan-type: 'image'
           severity: 'HIGH,CRITICAL'
           exit-code: 1
@@ -258,11 +260,11 @@ jobs:
           path: sbom.json
 
 
-      - name: Push Container Image to Docker Hub
+      - name: Push Container Image to ACR
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
-          docker tag ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:latest
+          docker push nimbusacrj9tt6o.azurecr.io/carshowroom-app:${{ github.sha }}
+          docker tag nimbusacrj9tt6o.azurecr.io/carshowroom-app:${{ github.sha }} nimbusacrj9tt6o.azurecr.io/carshowroom-app:latest
+          docker push nimbusacrj9tt6o.azurecr.io/carshowroom-app:latest
 
 
       - name: Install Cosign CLI
@@ -273,7 +275,7 @@ jobs:
         env:
           COSIGN_EXPERIMENTAL: "1"
         run: |
-          cosign sign --yes ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
+          cosign sign --yes nimbusacrj9tt6o.azurecr.io/carshowroom-app:${{ github.sha }}
 
   
       - name: Attach Signed SBOM Attestation
@@ -283,14 +285,14 @@ jobs:
           cosign attest --yes \
             --predicate sbom.json \
             --type spdxjson \
-            ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
+            nimbusacrj9tt6o.azurecr.io/carshowroom-app:${{ github.sha }}
 
       - name: Verify Image Signature
         run: |
           cosign verify \
             --certificate-identity-regexp "https://github.com/.*" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-            ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }} > cosign-verification.json
+            nimbusacrj9tt6o.azurecr.io/carshowroom-app:${{ github.sha }} > cosign-verification.json
 
 
       - name: Verify SBOM Attestation
@@ -299,7 +301,7 @@ jobs:
             --type spdxjson \
             --certificate-identity-regexp "https://github.com/.*" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-            ${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }} > cosign-attestation.json
+            nimbusacrj9tt6o.azurecr.io/carshowroom-app:${{ github.sha }} > cosign-attestation.json
 
       - name: Upload Security & Attestation Artifacts
         uses: actions/upload-artifact@v4
@@ -310,6 +312,7 @@ jobs:
             cosign-verification.json
             cosign-attestation.json
           retention-days: 14
+  
 
 
 
