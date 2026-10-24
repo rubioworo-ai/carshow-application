@@ -19,7 +19,7 @@ spec:
         - name: acr-secret
       containers:
         - name: nimbus-carweb-app
-          image:  nimbusacrstlnkk.azurecr.io/carshowroom:v1
+          image:  nimbusacrj9tt6o.azurecr.io/carshowroom-app:v1
           ports:
             - name: http
               containerPort: 80
