@@ -35,6 +35,43 @@ How was the fix verified? What can be done to prevent this issue from recurring?
 
 ## 📝 Logged Errors
 
+### [ERR-003] Terraform Backend Configuration Changed Error (`terraform init`)
+
+- **Date:** 2026-10-25
+- **Environment:** GitHub Actions CI/CD Pipeline (`infra-terraform.yaml`)
+- **Component / File:** `terraform-aks/backend.tf`, `.github/workflows/infra-terraform.yaml`
+
+#### 1. Error Symptoms & Message
+```
+Initializing the backend...
+╷
+│ Error: Backend configuration changed
+│ 
+│ A change in the backend configuration has been detected, which may require
+│ migrating existing state.
+│ 
+│ If you wish to attempt automatic migration of the state, use "terraform
+│ init -migrate-state".
+│ If you wish to store the current configuration with no changes to the
+│ state, use "terraform init -reconfigure".
+```
+
+#### 2. Root Cause
+In CI/CD environments where a remote backend (`backend "azurerm"`) is configured or updated, running plain `terraform init` without flags detects a configuration discrepancy and pauses for interactive confirmation. Since pipelines run non-interactively, Terraform exits with an error.
+
+#### 3. Resolution / Solution
+Update the workflow step in `.github/workflows/infra-terraform.yaml` from `terraform init` to `terraform init -reconfigure`:
+```yaml
+      - name: Terraform Init
+        run: |
+          terraform init -reconfigure
+```
+
+#### 4. Prevention / Verification
+Always use `terraform init -reconfigure` in automated pipelines where backend parameters or states are initialized across clean runner instances.
+
+---
+
 ### [ERR-002] Azure Login Failure - AADSTS700016 Application Not Found in Directory
 
 - **Date:** 2026-10-25

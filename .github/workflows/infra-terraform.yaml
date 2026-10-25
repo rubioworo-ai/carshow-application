@@ -77,7 +77,7 @@ jobs:
 
       - name: Terraform Init
         run: |
-          terraform init  
+          terraform init -reconfigure
             
 
       - name: Terraform Validate
