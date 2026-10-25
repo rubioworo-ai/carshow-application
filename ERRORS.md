@@ -35,6 +35,41 @@ How was the fix verified? What can be done to prevent this issue from recurring?
 
 ## 📝 Logged Errors
 
+### [ERR-002] Azure Login Failure - AADSTS700016 Application Not Found in Directory
+
+- **Date:** 2026-10-25
+- **Environment:** GitHub Actions CI/CD Pipeline (`azure/login@v3`)
+- **Component / File:** `.github/workflows/infra-terraform.yaml`, GitHub Repository Secrets (`AZURE_CREDENTIALS`)
+
+#### 1. Error Symptoms & Message
+```
+Attempting Azure CLI login by using service principal with secret...
+Error: AADSTS700016: Application with identifier '***' was not found in the directory '***'. This can happen if the application has not been installed by the administrator of the tenant or consented to by any user in the tenant. You may have sent your authentication request to the wrong tenant.
+Error: Run the command below to authenticate interactively...
+Error: Login failed with Error: The process '/usr/bin/az' failed with exit code 1.
+```
+
+#### 2. Root Cause
+The Service Principal `clientId` and/or `tenantId` provided in the GitHub repository secret `AZURE_CREDENTIALS` does not match the Azure Active Directory / Entra ID tenant where the user/subscription resides, or the application registration does not exist. The correct Tenant ID for this lab environment is `30fe8ff1-adc6-444d-ba94-1238894df42c`.
+
+#### 3. Resolution / Solution
+1. Verify that the `clientId` and `clientSecret` correspond to an active App Registration in your Azure Tenant (`30fe8ff1-adc6-444d-ba94-1238894df42c`).
+2. Ensure the GitHub secret `AZURE_CREDENTIALS` contains the correct JSON structure with the matching `tenantId`:
+```json
+{
+  "clientId": "CORRECT_CLIENT_ID",
+  "clientSecret": "CORRECT_CLIENT_SECRET",
+  "subscriptionId": "a2b28c85-1948-4263-90ca-bade2bac4df4",
+  "tenantId": "30fe8ff1-adc6-444d-ba94-1238894df42c"
+}
+```
+3. Update the `AZURE_CREDENTIALS` secret in GitHub Settings > Secrets and variables > Actions.
+
+#### 4. Prevention / Verification
+Re-run the GitHub Actions workflow after updating the repository secret with valid Service Principal credentials for the correct tenant.
+
+---
+
 ### [ERR-001] AuthorizationFailed when creating Azure Service Principal (`az ad sp create-for-rbac`)
 
 - **Date:** 2026-10-25
