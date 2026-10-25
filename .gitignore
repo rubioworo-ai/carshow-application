@@ -16,4 +16,6 @@ terraform-aks/.terraform/terraform.tfstate
 .scannerwork/*
 *azure-credentials.json
 python.py
+terraform-aks/terraform.tfstate
+terraform-aks/terraform.tfstate.backup
 

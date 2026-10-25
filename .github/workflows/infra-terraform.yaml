@@ -77,7 +77,7 @@ jobs:
 
       - name: Terraform Init
         run: |
-          terraform init --reconfigure 
+          terraform init  
             
 
       - name: Terraform Validate
@@ -91,7 +91,7 @@ jobs:
           if ! terraform state list | grep -q "azurerm_storage_account.state_sa"; then
             echo "Importing storage account into remote state..."
             terraform import azurerm_storage_account.state_sa \
-              "/subscriptions/a2b28c85-1948-4263-90ca-bade2bac4df4/resourceGroups/kml_rg_main-3b87bfae25b043ba/providers/Microsoft.Storage/storageAccounts/tfst4aadea6c"
+              "/subscriptions/a2b28c85-1948-4263-90ca-bade2bac4df4/resourceGroups/kml_rg_main-0810375e0ea74db3/providers/Microsoft.Storage/storageAccounts/tfst4aadea6c"
           fi
 
           if ! terraform state list | grep -q "azurerm_storage_container.state_container"; then
