@@ -53,6 +53,7 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_ACCESS_KEY: ${{ secrets.ARM_ACCESS_KEY }}
 
     steps:
       - name: Checkout Repository
@@ -90,14 +91,14 @@ jobs:
         run: |
           if ! terraform state list | grep -q "azurerm_storage_account.state_sa"; then
             echo "Importing storage account into remote state..."
-            terraform import azurerm_storage_account.state_sa \
-              "/subscriptions/a2b28c85-1948-4263-90ca-bade2bac4df4/resourceGroups/kml_rg_main-0810375e0ea74db3/providers/Microsoft.Storage/storageAccounts/tfst4aadea6c"
+            terraform import -input=false azurerm_storage_account.state_sa \
+              "/subscriptions/a2b28c85-1948-4263-90ca-bade2bac4df4/resourceGroups/kml_rg_main-0810375e0ea74db3/providers/Microsoft.Storage/storageAccounts/tfst4aadea6c" || true
           fi
 
           if ! terraform state list | grep -q "azurerm_storage_container.state_container"; then
             echo "Importing storage container into remote state..."
-            terraform import azurerm_storage_container.state_container \
-              "https://tfst4aadea6c.blob.core.windows.net/nimbuskeyubio123"
+            terraform import -input=false azurerm_storage_container.state_container \
+              "https://tfst4aadea6c.blob.core.windows.net/nimbuskeyubio123" || true
           fi
 
       - name: Terraform Plan

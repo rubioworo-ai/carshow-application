@@ -23,4 +23,5 @@ terraform.tfstate.*
 
 terraform-aks/terraform.tfstate
 terraform-aks/terraform.tfstate.backup
-
+ERRORS.md
+*ERRORS.md*
