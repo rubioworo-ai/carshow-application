@@ -16,6 +16,7 @@ terraform-aks/.terraform/terraform.tfstate
 .scannerwork/*
 *azure-credentials.json
 python.py
+.gemini/*
 terraform.tfstate
 terraform.tfstate.*
 *terraform-aks/terraform.tfstate
@@ -25,3 +26,5 @@ terraform-aks/terraform.tfstate
 terraform-aks/terraform.tfstate.backup
 ERRORS.md
 *ERRORS.md*
+errored.tfstate
+ERRORS.md
