@@ -225,8 +225,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ tolower(github.repository) }}:${{ github.sha }}
+            ghcr.io/${{ tolower(github.repository) }}:latest
             docker.io/${{ secrets.DOCKER_USERNAME }}/carshowroom-app:${{ github.sha }}
             docker.io/${{ secrets.DOCKER_USERNAME }}/carshowroom-app:latest
           cache-from: type=gha
@@ -235,7 +235,7 @@ jobs:
       - name: Run Trivy Image Vulnerability Scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/${{ github.repository }}:${{ github.sha }}'
+          image-ref: 'ghcr.io/${{ tolower(github.repository) }}:${{ github.sha }}'
           scan-type: 'image'
           severity: 'HIGH,CRITICAL'
           exit-code: 1
@@ -247,7 +247,7 @@ jobs:
         env:
           COSIGN_EXPERIMENTAL: "1"
         run: |
-          cosign sign --yes ghcr.io/${{ github.repository }}:${{ github.sha }}
+          cosign sign --yes ghcr.io/${{ tolower(github.repository) }}:${{ github.sha }}
 
       - name: Upload Security Attestation Artifacts
         uses: actions/upload-artifact@v4
