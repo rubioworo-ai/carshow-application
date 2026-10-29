@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: carshow-application
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: carshow-application
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/rubioworo-ai/Carshow-application.git'
+    targetRevision: HEAD
+    path: k8s-manifest
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: nimbus-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
