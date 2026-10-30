@@ -1,4 +1,4 @@
-name: DevSecOps Pipeline for Car Web Application
+name: DevSecOps Pipeline for Car Web Application ( terraform)
 
 on:
   push:
